@@ -25,23 +25,6 @@
   *{margin:0;padding:0;box-sizing:border-box;}
   html{scroll-behavior:smooth;}
   
-  <!-- ===== PANEL DE ADMINISTRADOR ===== -->
-<div class="jx-ov" id="jxAdminOv" role="dialog" aria-modal="true">
-  <form class="jx-box" id="jxAdminForm" autocomplete="off">
-    <button type="button" class="jx-x" id="jxAdminClose" aria-label="Cerrar">×</button>
-    <h3>Acceso interno</h3>
-    <p class="sub">Panel de administrador: ver todos los services cargados.</p>
-    <label for="jxAdminPass">Clave</label>
-    <input id="jxAdminPass" type="password" required>
-    <div class="jx-err" id="jxAdminErr" role="alert"></div>
-    <button type="submit" class="nav-cta">Ingresar</button>
-  </form>
-</div>
-<div class="jx-panel" id="jxAdminPanel">
-  <div class="jx-top"><div class="wrap"><b>JaX Oil <span>Racing</span> · Panel interno</b><button type="button" class="nav-cta" id="jxAdminOut">Cerrar</button></div></div>
-  <div class="wrap jx-body" id="jxAdminBody"></div>
-</div>
-<script>
 (function(){
   const $=id=>document.getElementById(id);
   async function fetchAdmin(p){
