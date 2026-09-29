@@ -452,6 +452,48 @@
   .cf .btn[disabled]{opacity:.6;cursor:wait;}
   .cf-status{min-height:22px;margin-top:14px;font-weight:600;color:#fff;text-align:center;}
   @media (max-width:560px){.cf-row{grid-template-columns:1fr;}}
+
+  /* ---------- WHATSAPP/Boton ---------- */
+  .whatsapp-float {
+    position: fixed;
+    width: 60px;
+    height: 60px;
+    bottom: 25px;
+    right: 25px;
+    background: #25D366;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    transition: transform 0.2s ease;
+    text-decoration: none;
+}
+
+.whatsapp-float:hover {
+    transform: scale(1.08);
+}
+
+.whatsapp-float svg {
+    width: 34px;
+    height: 34px;
+}
+
+@media (max-width: 600px) {
+    .whatsapp-float {
+        width: 55px;
+        height: 55px;
+        right: 18px;
+        bottom: 18px;
+    }
+
+    .whatsapp-float svg {
+        width: 31px;
+        height: 31px;
+    }
+}
 </style>
 </head>
 <body>
@@ -822,5 +864,11 @@
   });
 })();
 </script>
+  <a href="https://wa.me/5491166839509" class="whatsapp-float" target="_blank" rel="noopener noreferrer" aria-label="Contactar por WhatsApp">
+    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M20.5 3.5A11.8 11.8 0 0 0 12.1 0C5.5 0 .1 5.4.1 12c0 2.1.6 4.1 1.6 5.9L0 24l6.2-1.6c1.7.9 3.8 1.4 5.9 1.4h.1C18.7 23.8 24 18.4 24 12c0-3.2-1.2-6.2-3.5-8.5Z" fill="currentColor"/>
+        <path d="M17.5 13.9c-.3-.2-1.8-.9-2.1-1-.3-.1-.5-.2-.7.2-.2.3-.8 1-.9 1.2-.2.2-.3.2-.6.1-1.6-.8-2.7-1.4-3.8-3.2-.3-.5.3-.5.9-1.6.1-.2.1-.4 0-.6-.1-.2-.7-1.7-1-2.3-.3-.6-.5-.5-.7-.5h-.6c-.2 0-.6.1-.9.4-.3.3-1.1 1.1-1.1 2.6 0 1.5 1.1 3 1.2 3.2.1.2 2.2 3.4 5.3 4.7 3.1 1.3 3.1.9 3.6.9.5 0 1.8-.7 2-1.4.3-.7.3-1.3.2-1.4-.1-.2-.3-.3-.6-.4Z" fill="white"/>
+    </svg>
+</a>
 </body>
 </html>
