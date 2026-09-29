@@ -782,15 +782,46 @@
   async function sha(t){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(t));return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('');}
   let creds=null,timer=null;
 
-  async function fetchVehicle(u,p){
+    async function fetchVehicle(u,p){
     if(SHEET_API){
       const r=await fetch(SHEET_API+'?action=login&u='+encodeURIComponent(u)+'&p='+encodeURIComponent(p));
-      const j=await r.json(); if(!j.ok) throw new Error(j.error||'Usuario o clave incorrectos'); return j.vehicle;
+      const j=await r.json(); if(!j.ok) throw new Error(j.error||'Usuario o clave incorrectos');
+      if(j.isAdmin) return {isAdmin:true, vehiculos:j.vehiculos};
+      return j.vehicle;
     }
     const v=SNAPSHOT[norm(u)];
     if(!v||v.h!==await sha(String(p).trim())) throw new Error('Usuario o clave incorrectos');
     return v;
   }
+
+  function ddmmyyyy(iso){ return iso ? iso.split('-').reverse().join('/') : '—'; }
+  function renderAdmin(vehiculos){
+    if(!vehiculos.length){ $('jxBody').innerHTML = '<p style="color:var(--steel-light)">Todavía no hay services cargados.</p>'; return; }
+    $('jxBody').innerHTML = `<div class="jx-hello">Panel de administrador</div><h2>Todos los vehículos</h2>
+      <p style="color:var(--steel);margin-bottom:24px;">${vehiculos.length} vehículo(s) con service registrado.</p>` +
+      vehiculos.map(v=>{
+        const last = v.services[0]||{};
+        const historial = v.services.map(s=>`
+          <div style="padding:12px 20px;border-top:1px solid var(--line);">
+            <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;">
+              <span style="color:var(--red);font-family:'Oswald',sans-serif;">${ddmmyyyy(s.fecha)}</span>
+              <span style="color:var(--steel-light);">${s.km? Number(s.km).toLocaleString('es-AR'):'—'} km</span>
+            </div>
+            <div style="margin-top:4px;">${s.tipo||'Service'}</div>
+            ${s.obs? `<div style="margin-top:4px;color:var(--steel);font-size:14px;">${s.obs}</div>`:''}
+          </div>`).join('');
+        return `
+          <details style="background:var(--charcoal);border:1px solid var(--line);margin-bottom:14px;">
+            <summary style="cursor:pointer;padding:14px 20px;background:var(--charcoal-2);display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;list-style:none;">
+              <span style="font-family:'Oswald',sans-serif;letter-spacing:.06em;">${v.patente}</span>
+              <span style="color:var(--steel-light);">${v.marca} ${v.modelo} — ${v.cliente||'—'}</span>
+              <span style="color:var(--steel);">Último: ${ddmmyyyy(last.fecha)}</span>
+            </summary>
+            ${historial}
+          </details>`;
+      }).join('');
+  }
+  
   function render(v){
     const last=v.services[0]||{};
     const svc=v.services.map(s=>`<article class="jx-svc"><header><span class="d">${fd(s.fecha)}</span><span class="k">${nf(s.km)} km</span></header>
@@ -812,10 +843,14 @@
       <h3 class="h">Historial de service (${v.services.length})</h3>${svc}
       <div class="jx-upd">Actualizado: ${new Date().toLocaleString('es-AR')}</div>`;
   }
-  function openPanel(v){
-    render(v);$('jxOv').classList.remove('open');$('jxPanel').classList.add('open');document.body.classList.add('jx-lock');$('jxPanel').scrollTop=0;
-    if(SHEET_API){clearInterval(timer);timer=setInterval(async()=>{try{render(await fetchVehicle(creds.u,creds.p));}catch(e){}},REFRESH_MS);}
+  
+    function openPanel(v){
+    if(v.isAdmin){ renderAdmin(v.vehiculos); }
+    else { render(v); }
+    $('jxOv').classList.remove('open');$('jxPanel').classList.add('open');document.body.classList.add('jx-lock');$('jxPanel').scrollTop=0;
+    if(SHEET_API && !v.isAdmin){clearInterval(timer);timer=setInterval(async()=>{try{render(await fetchVehicle(creds.u,creds.p));}catch(e){}},REFRESH_MS);}
   }
+  
   function logout(){clearInterval(timer);creds=null;$('jxPanel').classList.remove('open');document.body.classList.remove('jx-lock');$('jxBody').innerHTML='';$('jxPass').value='';}
   $('jaxLoginBtn').addEventListener('click',()=>{$('jxErr').textContent='';$('jxOv').classList.add('open');setTimeout(()=>$('jxUser').focus(),50);});
   $('jxClose').addEventListener('click',()=>$('jxOv').classList.remove('open'));
