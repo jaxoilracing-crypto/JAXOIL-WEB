@@ -844,7 +844,7 @@
       <div class="jx-upd">Actualizado: ${new Date().toLocaleString('es-AR')}</div>`;
   }
   
-    function openPanel(v){
+   function openPanel(v){
     if(v.isAdmin){ renderAdmin(v.vehiculos); }
     else { render(v); }
     $('jxOv').classList.remove('open');$('jxPanel').classList.add('open');document.body.classList.add('jx-lock');$('jxPanel').scrollTop=0;
