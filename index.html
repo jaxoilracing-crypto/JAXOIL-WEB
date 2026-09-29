@@ -24,6 +24,80 @@
   }
   *{margin:0;padding:0;box-sizing:border-box;}
   html{scroll-behavior:smooth;}
+  
+  <!-- ===== PANEL DE ADMINISTRADOR ===== -->
+<div class="jx-ov" id="jxAdminOv" role="dialog" aria-modal="true">
+  <form class="jx-box" id="jxAdminForm" autocomplete="off">
+    <button type="button" class="jx-x" id="jxAdminClose" aria-label="Cerrar">×</button>
+    <h3>Acceso interno</h3>
+    <p class="sub">Panel de administrador: ver todos los services cargados.</p>
+    <label for="jxAdminPass">Clave</label>
+    <input id="jxAdminPass" type="password" required>
+    <div class="jx-err" id="jxAdminErr" role="alert"></div>
+    <button type="submit" class="nav-cta">Ingresar</button>
+  </form>
+</div>
+<div class="jx-panel" id="jxAdminPanel">
+  <div class="jx-top"><div class="wrap"><b>JaX Oil <span>Racing</span> · Panel interno</b><button type="button" class="nav-cta" id="jxAdminOut">Cerrar</button></div></div>
+  <div class="wrap jx-body" id="jxAdminBody"></div>
+</div>
+<script>
+(function(){
+  const $=id=>document.getElementById(id);
+  async function fetchAdmin(p){
+    const r = await fetch(window.JAX_API+'?action=admin&p='+encodeURIComponent(p));
+    const j = await r.json();
+    if(!j.ok) throw new Error(j.error||'Clave incorrecta');
+    return j.vehiculos;
+  }
+  function ddmmyyyy(iso){ return iso ? iso.split('-').reverse().join('/') : '—'; }
+  function renderAdmin(vehiculos){
+    if(!vehiculos.length){ $('jxAdminBody').innerHTML = '<p style="color:var(--steel-light)">Todavía no hay services cargados.</p>'; return; }
+    $('jxAdminBody').innerHTML = `<p style="color:var(--steel);margin-bottom:18px;">${vehiculos.length} vehículo(s) con service registrado.</p>` +
+      vehiculos.map(v=>{
+        const last = v.services[0]||{};
+        const historial = v.services.map(s=>`
+          <div style="padding:12px 20px;border-top:1px solid var(--line);">
+            <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;">
+              <span style="color:var(--red);font-family:'Oswald',sans-serif;">${ddmmyyyy(s.fecha)}</span>
+              <span style="color:var(--steel-light);">${s.km? Number(s.km).toLocaleString('es-AR'):'—'} km</span>
+            </div>
+            <div style="margin-top:4px;">${s.tipo||'Service'}</div>
+            ${s.obs? `<div style="margin-top:4px;color:var(--steel);font-size:14px;">${s.obs}</div>`:''}
+          </div>`).join('');
+        return `
+          <details style="background:var(--charcoal);border:1px solid var(--line);margin-bottom:14px;">
+            <summary style="cursor:pointer;padding:14px 20px;background:var(--charcoal-2);display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;list-style:none;">
+              <span style="font-family:'Oswald',sans-serif;letter-spacing:.06em;">${v.patente}</span>
+              <span style="color:var(--steel-light);">${v.marca} ${v.modelo} — ${v.cliente||'—'}</span>
+              <span style="color:var(--steel);">Último: ${ddmmyyyy(last.fecha)}</span>
+            </summary>
+            ${historial}
+          </details>`;
+      }).join('');
+  }
+  $('jxAdminClose').addEventListener('click', ()=>$('jxAdminOv').classList.remove('open'));
+  $('jxAdminForm').addEventListener('submit', async e=>{
+    e.preventDefault();
+    const p = $('jxAdminPass').value;
+    $('jxAdminErr').textContent='Verificando…';
+    try{
+      const vehiculos = await fetchAdmin(p);
+      $('jxAdminErr').textContent='';
+      $('jxAdminOv').classList.remove('open');
+      $('jxAdminPanel').classList.add('open');
+      document.body.classList.add('jx-lock');
+      renderAdmin(vehiculos);
+    }catch(err){ $('jxAdminErr').textContent = err.message||'No se pudo conectar.'; }
+  });
+  $('jxAdminOut').addEventListener('click', ()=>{
+    $('jxAdminPanel').classList.remove('open');
+    document.body.classList.remove('jx-lock');
+    $('jxAdminPass').value='';
+  });
+})();
+</script>
+  
   body{
     background:var(--black);
     color:var(--white);
